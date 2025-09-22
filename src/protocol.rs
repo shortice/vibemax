@@ -63,33 +63,29 @@ pub fn generate_answer<T: ToString>(x: &Vec<T>) -> i64 {
         "n_predict": 200,
         "messages": [
             {
-                "role": "user", 
+                "role": "user",
                 "content": format!(
-                    "What is maximum value in [{arr_data}]? Answer with only the number value, nothing else. /no_think",
+                    "What is maximum value in [{arr_data}]? Answer with only the number \
+                    value, nothing else. /no_think",
                 )
             }
         ]
     });
 
-
     let client = Client::new();
-    let req = client.post("http://127.0.0.1:8080/v1/chat/completions")
+    let req = client
+        .post("http://127.0.0.1:8080/v1/chat/completions")
         .body(data.to_string())
         .send();
 
     let response = req.expect("Err.").text().expect("Err");
 
-    let result: Response = serde_json::from_str(
-        response.as_str()
-    ).expect("Err.");
+    let result: Response = serde_json::from_str(response.as_str()).expect("Err.");
 
     let answer: Vec<_> = {
         let content = &result.choices[0].message.content;
         content.split("\n\n").collect()
     };
 
-    answer.get(answer.len() - 1)
-        .unwrap()
-        .parse()
-        .unwrap()
+    answer.get(answer.len() - 1).unwrap().parse().unwrap()
 }
